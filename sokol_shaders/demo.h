@@ -140,6 +140,7 @@ struct Demo : SokolEngine {
 	float radian = 0.0174532777777778;
 	//cam info
 
+	float Time= 100;
 
 	int anim_index = 0;
 	float obj_dist = 0;
@@ -175,6 +176,22 @@ struct Demo : SokolEngine {
 		sg_buffer vbuf{};
 		sg_buffer ibuf{};
 	} process;
+
+	struct {
+		sg_pass_action pass_action{};
+		sg_pipeline pip{};
+
+		sg_buffer vbuf{};
+		sg_buffer ibuf{};
+	}crosshatch;
+
+	struct {
+		sg_pass_action pass_action{};
+		sg_pipeline pip{};
+
+		sg_buffer vbuf{};
+		sg_buffer ibuf{};
+	}sinwave;
 
 	//grab object test
 	vf3d current_dir, prevous_dir;
@@ -288,6 +305,7 @@ struct Demo : SokolEngine {
 		pipeline_desc.cull_mode = SG_CULLMODE_FRONT;
 		pipeline_desc.depth.write_enabled = true;
 		pipeline_desc.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
+		pipeline_desc.depth.pixel_format = SG_PIXELFORMAT_DEPTH;
 
 		pipeline_desc.colors[0].blend.enabled = true;
 		pipeline_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
@@ -391,6 +409,9 @@ struct Demo : SokolEngine {
 		pip_desc.layout.attrs[ATTR_texview_v_uv].format = SG_VERTEXFORMAT_FLOAT2;
 		pip_desc.shader = sg_make_shader(texview_shader_desc(sg_query_backend()));
 		pip_desc.primitive_type = SG_PRIMITIVETYPE_TRIANGLE_STRIP;
+		pip_desc.depth.write_enabled = true;
+		pip_desc.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
+		pip_desc.depth.pixel_format = SG_PIXELFORMAT_DEPTH;
 
 		//with alpha blending
 		pip_desc.colors[0].blend.enabled = true;
@@ -480,6 +501,7 @@ struct Demo : SokolEngine {
 		pip_desc.layout.attrs[ATTR_skybox_v_uv].format = SG_VERTEXFORMAT_FLOAT2;
 		pip_desc.shader = sg_make_shader(skybox_shader_desc(sg_query_backend()));
 		pip_desc.index_type = SG_INDEXTYPE_UINT32;
+		pip_desc.depth.pixel_format = SG_PIXELFORMAT_DEPTH;
 		skybox.pip = sg_make_pipeline(pip_desc);
 
 		const vf3d rot_trans[6][2]{
@@ -546,6 +568,11 @@ struct Demo : SokolEngine {
 		pip_desc.layout.attrs[ATTR_fontview_i_uv].format = SG_VERTEXFORMAT_FLOAT2;
 		pip_desc.shader = sg_make_shader(fontview_shader_desc(sg_query_backend()));
 		pip_desc.primitive_type = SG_PRIMITIVETYPE_TRIANGLE_STRIP;
+		pip_desc.depth.write_enabled = true;
+		pip_desc.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
+		pip_desc.depth.pixel_format = SG_PIXELFORMAT_DEPTH;
+
+
 		//with alpha blending
 		pip_desc.colors[0].blend.enabled = true;
 		pip_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
@@ -643,6 +670,9 @@ struct Demo : SokolEngine {
 		render.pass_action.colors[0].clear_value = { .5f, .5f, .5f, 1 };
 	}
 
+
+	//ctr
+
 	void setupProcess() {
 		process.pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
 		process.pass_action.colors[0].clear_value = { 0, 0, 0, 1 };
@@ -666,7 +696,58 @@ struct Demo : SokolEngine {
 		process.vbuf = sg_make_buffer(buffer_desc);
 	}
 
-	
+	//crosshatch
+
+	void setupCrossHatch()
+	{
+		crosshatch.pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
+		crosshatch.pass_action.colors[0].clear_value = { 0, 0, 0, 1 };
+
+		sg_pipeline_desc pip_desc{};
+		pip_desc.layout.attrs[ATTR_crosshatch_i_pos].format = SG_VERTEXFORMAT_FLOAT2;
+		pip_desc.layout.attrs[ATTR_crosshatch_i_uv].format = SG_VERTEXFORMAT_FLOAT2;
+		pip_desc.shader = sg_make_shader(crosshatch_shader_desc(sg_query_backend()));
+		pip_desc.primitive_type = SG_PRIMITIVETYPE_TRIANGLE_STRIP;
+		crosshatch.pip = sg_make_pipeline(pip_desc);
+
+		//xyuv
+		float vertexes[4][4]{
+			{-1, -1, 0, 0},
+			{1, -1, 1, 0},
+			{-1, 1, 0, 1},
+			{1, 1, 1, 1}
+		};
+		sg_buffer_desc buffer_desc{};
+		buffer_desc.data = SG_RANGE(vertexes);
+		crosshatch.vbuf = sg_make_buffer(buffer_desc);
+
+	}
+
+	void setupSinWave()
+	{
+		sinwave.pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
+		sinwave.pass_action.colors[0].clear_value = { 0, 0, 0, 1 };
+
+		sg_pipeline_desc pip_desc{};
+		pip_desc.layout.attrs[ATTR_sinwave_i_pos].format = SG_VERTEXFORMAT_FLOAT2;
+		pip_desc.layout.attrs[ATTR_sinwave_i_uv].format = SG_VERTEXFORMAT_FLOAT2;
+		pip_desc.shader = sg_make_shader(sinwave_shader_desc(sg_query_backend()));
+		pip_desc.primitive_type = SG_PRIMITIVETYPE_TRIANGLE_STRIP;
+		sinwave.pip = sg_make_pipeline(pip_desc);
+
+		//xyuv
+		float vertexes[4][4]{
+			{-1, -1, 0, 0},
+			{1, -1, 1, 0},
+			{-1, 1, 0, 1},
+			{1, 1, 1, 1}
+		};
+		sg_buffer_desc buffer_desc{};
+		buffer_desc.data = SG_RANGE(vertexes);
+		sinwave.vbuf = sg_make_buffer(buffer_desc);
+
+	}
+
 
 #pragma endregion
 
@@ -703,8 +784,8 @@ struct Demo : SokolEngine {
 		setupRender();
 		setupProcess();
 
-
-
+		setupCrossHatch();
+		setupSinWave();
 	}
 
 
@@ -1567,25 +1648,75 @@ struct Demo : SokolEngine {
 			
 		}
 
-		//display
-		{
-			sg_pass pass{};
-			pass.action = render.pass_action;
-			pass.swapchain = sglue_swapchain();
-			sg_begin_pass(pass);
+		//crt display
+		//{
+		//	sg_pass pass{};
+		//	pass.action = render.pass_action;
+		//	pass.swapchain = sglue_swapchain();
+		//	sg_begin_pass(pass);
+		//
+		//	sg_apply_pipeline(process.pip);
+		//
+		//	sg_bindings bind{};
+		//	bind.vertex_buffers[0] = process.vbuf;
+		//	bind.samplers[SMP_u_process_smp] = samplers.linear;
+		//	bind.views[VIEW_u_process_tex] = render.color_tex;
+		//	sg_apply_bindings(bind);
+		//
+		//	sg_draw(0, 4, 1);
+		//
+		//	sg_end_pass();
+		//}
 
-			sg_apply_pipeline(process.pip);
+		//crosshatch display
+		//{
+		//	sg_pass pass{};
+		//	pass.action = render.pass_action;
+		//	pass.swapchain = sglue_swapchain();
+		//	sg_begin_pass(pass);
+		//
+		//	sg_apply_pipeline(crosshatch.pip);
+		//
+		//	sg_bindings bind{};
+		//	bind.vertex_buffers[0] = crosshatch.vbuf;
+		//	bind.samplers[SMP_u_crosshatch_smp] = samplers.linear;
+		//	bind.views[VIEW_u_crosshatch_tex] = render.color_tex;
+		//	sg_apply_bindings(bind);
+		//
+		//	fs_crosshatch_params_t fs_crosshatch_params{};
+		//	fs_crosshatch_params.time = Time;
+		//
+		//	sg_apply_uniforms(UB_fs_crosshatch_params,SG_RANGE(fs_crosshatch_params) );
+		//
+		//	sg_draw(0, 4, 1);
+		//
+		//	sg_end_pass();
+		//}
 
-			sg_bindings bind{};
-			bind.vertex_buffers[0] = process.vbuf;
-			bind.samplers[SMP_u_process_smp] = samplers.linear;
-			bind.views[VIEW_u_process_tex] = render.color_tex;
-			sg_apply_bindings(bind);
-
-			sg_draw(0, 4, 1);
-
-			sg_end_pass();
-		}
+		//sinwave display
+	    {
+	    	sg_pass pass{};
+	    	pass.action = render.pass_action;
+	    	pass.swapchain = sglue_swapchain();
+	    	sg_begin_pass(pass);
+	    
+	    	sg_apply_pipeline(crosshatch.pip);
+	    
+	    	sg_bindings bind{};
+	    	bind.vertex_buffers[0] = sinwave.vbuf;
+	    	bind.samplers[SMP_u_sinwave_smp] = samplers.linear;
+	    	bind.views[VIEW_u_sinwave_tex] = render.color_tex;
+	    	sg_apply_bindings(bind);
+	    
+	    	fs_sinwave_params_t fs_sinwave_params{};
+	    	fs_sinwave_params.time = Time;
+	    
+	    	sg_apply_uniforms(UB_fs_sinwave_params,SG_RANGE(fs_sinwave_params) );
+	    
+	    	sg_draw(0, 4, 1);
+	    
+	    	sg_end_pass();
+	    }
 		
 		
 		sg_commit();

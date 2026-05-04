@@ -5,6 +5,9 @@
 #include <iostream>
 
 #include "shd.glsl.h"
+//#include "scene_shd.glsl.h"
+//#include "window_shd.glsl.h"
+//#include "object_shd.glsl.h"
 
 #include "math/v3d.h"
 #include "math/mat4.h"
@@ -140,7 +143,7 @@ struct Demo : SokolEngine {
 	float radian = 0.0174532777777778;
 	//cam info
 
-	float Time= 100;
+	float Time= 1;
 
 	int anim_index = 0;
 	float obj_dist = 0;
@@ -193,6 +196,15 @@ struct Demo : SokolEngine {
 		sg_buffer ibuf{};
 	}sinwave;
 
+	struct {
+		sg_pass_action pass_action{};
+		sg_pipeline pip{};
+
+		sg_buffer vbuf{};
+		sg_buffer ibuf{};
+	}wave_ripples;
+
+
 	//grab object test
 	vf3d current_dir, prevous_dir;
 	Object* held_obj = nullptr;
@@ -211,8 +223,15 @@ struct Demo : SokolEngine {
 
 	
 	const std::vector<std::string> Structurefilenames{
-		"assets/models/deserttest.txt",
-		"assets/models/tathouse1.txt",
+		"assets/models/lakeside.txt",
+		"assets/models/watering.txt",
+		"assets/models/house.txt"
+	};
+
+	const std::vector<std::string> texturefilenames{
+		"assets/grass.png",
+		"assets/water.png",
+		"assets/colorstone.png"
 	};
 
 	const std::vector<std::string> spritefileNames = {
@@ -332,26 +351,45 @@ struct Demo : SokolEngine {
 
 #pragma endregion
 
+#pragma region SCENE SETUPS
+
+#pragma region SCENE PIPLINES
+
+
+
+#pragma endregion
+
+
+#pragma endregion
+
+
 #pragma region SCENE OBJECTS SETUP
 
 	void setupSceneObjects( )
 	{
 		std::vector<vf3d> coords = {
-			{11,-2,4},
-			//{-14,-2,17},
-			//{16,-2,-14},
+			{-150,-18,100},
+			{0,-2,0},
+			{8,-2,4},
 			//{-14,-2,-14},
+		};
+
+		std::vector<vf3d> scales =
+		{
+			{1,1,1},
+			{12,1,12},
+			{1,1,1}
 		};
 		for (int i = 0; i < coords.size(); i++)
 		{
 			Object b;
 			Mesh& m = b.mesh;
-			auto status = Mesh::loadFromOBJ(m, Structurefilenames[1]);
+			auto status = Mesh::loadFromOBJ(m, Structurefilenames[i]);
 			if (!status.valid) m = Mesh::makeCube();
-			b.scale = { 1,1,1 };
+			b.scale = scales[i];
 			b.translation = coords[i];
 			b.updateMatrixes();
-			b.tex = getTexture("assets/poust_1.png");
+			b.tex = getTexture(texturefilenames[i]);
 			b.addLineMesh();
 			scene_objects.push_back(b);
 			
@@ -367,7 +405,7 @@ struct Demo : SokolEngine {
 		b.scale = { 5,1,5 };
 		b.translation = { 0,-2,0 };
 		b.updateMatrixes();
-		b.tex = getTexture("assets/poust_1.png");
+		b.tex = getTexture("assets/water.png");
 		b.addLineMesh();
 		scene_objects.push_back(b);
 	
@@ -698,30 +736,7 @@ struct Demo : SokolEngine {
 
 	//crosshatch
 
-	void setupCrossHatch()
-	{
-		crosshatch.pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
-		crosshatch.pass_action.colors[0].clear_value = { 0, 0, 0, 1 };
-
-		sg_pipeline_desc pip_desc{};
-		pip_desc.layout.attrs[ATTR_crosshatch_i_pos].format = SG_VERTEXFORMAT_FLOAT2;
-		pip_desc.layout.attrs[ATTR_crosshatch_i_uv].format = SG_VERTEXFORMAT_FLOAT2;
-		pip_desc.shader = sg_make_shader(crosshatch_shader_desc(sg_query_backend()));
-		pip_desc.primitive_type = SG_PRIMITIVETYPE_TRIANGLE_STRIP;
-		crosshatch.pip = sg_make_pipeline(pip_desc);
-
-		//xyuv
-		float vertexes[4][4]{
-			{-1, -1, 0, 0},
-			{1, -1, 1, 0},
-			{-1, 1, 0, 1},
-			{1, 1, 1, 1}
-		};
-		sg_buffer_desc buffer_desc{};
-		buffer_desc.data = SG_RANGE(vertexes);
-		crosshatch.vbuf = sg_make_buffer(buffer_desc);
-
-	}
+	
 
 	void setupSinWave()
 	{
@@ -749,6 +764,7 @@ struct Demo : SokolEngine {
 	}
 
 
+
 #pragma endregion
 
 	
@@ -768,7 +784,7 @@ struct Demo : SokolEngine {
 		setupSkybox();
 		
 		//scene objects
-		setupScenePlatform();
+		//setupScenePlatform();
 		setupSceneObjects();
         setupSceneBillboard();
 
@@ -784,7 +800,7 @@ struct Demo : SokolEngine {
 		setupRender();
 		setupProcess();
 
-		setupCrossHatch();
+		
 		setupSinWave();
 	}
 
@@ -1155,7 +1171,7 @@ struct Demo : SokolEngine {
 			{
 				
 				float dist = 0;
-				dist = intersectRay(scene_objects[i], player_pos + (movement * 2), {0,-1,0});
+				dist = intersectRay(scene_objects[0], player_pos + (movement * 2), {0,-1,0});
 			   if (dist == -1) continue;
 
 				if (dist < total_dist)
@@ -1258,14 +1274,6 @@ struct Demo : SokolEngine {
 	}
 
 
-
-	void sceneHorzCollision( float dt)
-	{
-		
-
-		
-	}
-
 #pragma endregion
 
 
@@ -1278,7 +1286,7 @@ struct Demo : SokolEngine {
 		handleUserInput(dt);
 		updateGui(dt);
 
-		
+		Time += 50;
 
 		for (auto& obj : scene_objects)
 		{
@@ -1422,7 +1430,10 @@ struct Demo : SokolEngine {
 	void render_Quad()
 	{
 		//separate animation stuff later
-		
+		//sg_pass pass{};
+		//pass.action = render.pass_action;
+		//pass.swapchain = sglue_swapchain();
+		//sg_begin_pass(pass);
 
 		int row = gGui.anim / gGui.num_x;
 		int col = gGui.anim % gGui.num_x;
@@ -1591,6 +1602,58 @@ struct Demo : SokolEngine {
 
 #pragma endregion
 
+#pragma region SHADER RENDERS
+
+	void CRT_Render()
+	{
+		sg_pass pass{};
+		pass.action = render.pass_action;
+		pass.swapchain = sglue_swapchain();
+		sg_begin_pass(pass);
+
+		sg_apply_pipeline(process.pip);
+
+		sg_bindings bind{};
+		bind.vertex_buffers[0] = process.vbuf;
+		bind.samplers[SMP_u_process_smp] = samplers.linear;
+		bind.views[VIEW_u_process_tex] = render.color_tex;
+		sg_apply_bindings(bind);
+
+		sg_draw(0, 4, 1);
+
+		
+
+		sg_end_pass();
+	}
+
+
+
+	void sinwave_Render()
+	{
+		sg_pass pass{};
+		pass.action = render.pass_action;
+		pass.swapchain = sglue_swapchain();
+		sg_begin_pass(pass);
+
+		sg_apply_pipeline(sinwave.pip);
+
+		sg_bindings bind{};
+		bind.vertex_buffers[0] = sinwave.vbuf;
+		bind.samplers[SMP_u_sinwave_smp] = samplers.linear;
+		bind.views[VIEW_u_sinwave_tex] = render.color_tex;
+		sg_apply_bindings(bind);
+
+		fs_sinwave_params_t fs_sinwave_params{};
+		fs_sinwave_params.time = Time;
+
+		sg_apply_uniforms(UB_fs_sinwave_params, SG_RANGE(fs_sinwave_params));
+
+		sg_draw(0, 4, 1);
+
+		sg_end_pass();
+
+	}
+#pragma endregion
 
 
 
@@ -1638,8 +1701,8 @@ struct Demo : SokolEngine {
 					renderObjects(obj);
 				}
 			}
-		
 			render_Quad();
+			
 		
 			renderFonts();
 		
@@ -1648,75 +1711,8 @@ struct Demo : SokolEngine {
 			
 		}
 
-		//crt display
-		//{
-		//	sg_pass pass{};
-		//	pass.action = render.pass_action;
-		//	pass.swapchain = sglue_swapchain();
-		//	sg_begin_pass(pass);
-		//
-		//	sg_apply_pipeline(process.pip);
-		//
-		//	sg_bindings bind{};
-		//	bind.vertex_buffers[0] = process.vbuf;
-		//	bind.samplers[SMP_u_process_smp] = samplers.linear;
-		//	bind.views[VIEW_u_process_tex] = render.color_tex;
-		//	sg_apply_bindings(bind);
-		//
-		//	sg_draw(0, 4, 1);
-		//
-		//	sg_end_pass();
-		//}
-
-		//crosshatch display
-		//{
-		//	sg_pass pass{};
-		//	pass.action = render.pass_action;
-		//	pass.swapchain = sglue_swapchain();
-		//	sg_begin_pass(pass);
-		//
-		//	sg_apply_pipeline(crosshatch.pip);
-		//
-		//	sg_bindings bind{};
-		//	bind.vertex_buffers[0] = crosshatch.vbuf;
-		//	bind.samplers[SMP_u_crosshatch_smp] = samplers.linear;
-		//	bind.views[VIEW_u_crosshatch_tex] = render.color_tex;
-		//	sg_apply_bindings(bind);
-		//
-		//	fs_crosshatch_params_t fs_crosshatch_params{};
-		//	fs_crosshatch_params.time = Time;
-		//
-		//	sg_apply_uniforms(UB_fs_crosshatch_params,SG_RANGE(fs_crosshatch_params) );
-		//
-		//	sg_draw(0, 4, 1);
-		//
-		//	sg_end_pass();
-		//}
-
-		//sinwave display
-	    {
-	    	sg_pass pass{};
-	    	pass.action = render.pass_action;
-	    	pass.swapchain = sglue_swapchain();
-	    	sg_begin_pass(pass);
-	    
-	    	sg_apply_pipeline(crosshatch.pip);
-	    
-	    	sg_bindings bind{};
-	    	bind.vertex_buffers[0] = sinwave.vbuf;
-	    	bind.samplers[SMP_u_sinwave_smp] = samplers.linear;
-	    	bind.views[VIEW_u_sinwave_tex] = render.color_tex;
-	    	sg_apply_bindings(bind);
-	    
-	    	fs_sinwave_params_t fs_sinwave_params{};
-	    	fs_sinwave_params.time = Time;
-	    
-	    	sg_apply_uniforms(UB_fs_sinwave_params,SG_RANGE(fs_sinwave_params) );
-	    
-	    	sg_draw(0, 4, 1);
-	    
-	    	sg_end_pass();
-	    }
+		
+		CRT_Render();
 		
 		
 		sg_commit();

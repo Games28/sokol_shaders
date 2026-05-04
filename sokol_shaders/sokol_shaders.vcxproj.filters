@@ -57,6 +57,24 @@
     <ClInclude Include="v2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sokol\sokol_app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_gfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_glue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_shd.glsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="object_shd.glsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window_shd.glsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -65,5 +83,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shd.glsl" />
+    <None Include="scene_shd.glsl" />
+    <None Include="object_shd.glsl" />
+    <None Include="window_shd.glsl" />
+    <None Include="scene_shdc.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -130,19 +130,29 @@
     <ClInclude Include="linemesh.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="object_shd.glsl.h" />
     <ClInclude Include="return_code.h" />
+    <ClInclude Include="scene_shd.glsl.h" />
     <ClInclude Include="shd.glsl.h" />
+    <ClInclude Include="sokol\sokol_app.h" />
+    <ClInclude Include="sokol\sokol_gfx.h" />
+    <ClInclude Include="sokol\sokol_glue.h" />
     <ClInclude Include="sokol_engine.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture_utils.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="v2d.h" />
+    <ClInclude Include="window_shd.glsl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="object_shd.glsl" />
+    <None Include="scene_shd.glsl" />
+    <None Include="scene_shdc.bat" />
     <None Include="shd.glsl" />
+    <None Include="window_shd.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

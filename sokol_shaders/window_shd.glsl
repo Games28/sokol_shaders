@@ -1,6 +1,6 @@
 ///////// 2d texture with/without animation //////////////////
 
-@vs vs_texview
+@vs vs_window_texview
 
 in vec2 v_pos;
 in vec2 v_uv;
@@ -16,12 +16,12 @@ void main()
 
 @end
 
-@fs fs_texview
+@fs fs_window_texview
 
-layout(binding = 0) uniform texture2D texview_tex;
-layout(binding = 0) uniform sampler texview_smp;
+layout(binding = 0) uniform texture2D window_texview_tex;
+layout(binding = 0) uniform sampler window_texview_smp;
 
-layout(binding = 0) uniform fs_texview_params
+layout(binding = 0) uniform fs_window_texview_params
 {
 	vec4 u_tint;
 	vec2 u_tl;
@@ -34,13 +34,59 @@ out vec4 frag_color;
 
 void main()
 {
-	vec4 col = texture(sampler2D(texview_tex, texview_smp), u_tl + uv * (u_br - u_tl));
+	vec4 col = texture(sampler2D(window_texview_tex, window_texview_smp), u_tl + uv * (u_br - u_tl));
 	frag_color = u_tint * col;
 }
 
 @end
 
-@program texview vs_texview fs_texview
+@program window_texview vs_window_texview fs_window_texview
+
+
+//////////////// FONT VIEW SHADER ///////////////////////
+
+@vs vs_window_fontview
+
+layout(binding = 0) uniform vs_window_fontview_params{
+	vec2 u_tl;
+	vec2 u_br;
+};
+
+in vec2 i_pos;
+in vec2 i_uv;
+
+out vec2 uv;
+
+void main(){
+	uv = u_tl + i_uv * (u_br - u_tl);
+	gl_Position = vec4(i_pos, .5, 1);
+}
+
+@end
+
+@fs fs_window_fontview
+
+layout(binding = 1) uniform fs_window_fontview_params{
+	vec4 u_tint;
+};
+
+layout(binding = 0) uniform texture2D u_window_fontview_tex;
+layout(binding = 0) uniform sampler u_window_fontview_smp;
+
+in vec2 uv;
+
+out vec4 o_frag_col;
+
+void main(){
+	o_frag_col = u_tint * texture(sampler2D(u_window_fontview_tex, u_window_fontview_smp), uv);
+}
+
+@end
+
+@program window_fontview vs_window_fontview fs_window_fontview
+
+
+
 
 /*===== RENDER SHADER =====*/
 

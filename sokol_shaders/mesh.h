@@ -220,7 +220,7 @@ struct Mesh {
 		//note: loop order matters here.
 		for(int i=0; i<num_xz; i++) {
 			float u=i/(num_xz-1.f);
-			float theta=2*Pi*u;
+			float theta=2*cmn::Pi*u;
 
 			//offset from big radius
 			float dx=std::sin(theta);
@@ -230,7 +230,7 @@ struct Mesh {
 
 			for(int j=0; j<num_y; j++) {
 				float v=j/(num_y-1.f);
-				float phi=2*Pi*v;
+				float phi=2*cmn::Pi*v;
 
 				//scale xz by little radius
 				float dr=std::sin(phi);
@@ -270,14 +270,14 @@ struct Mesh {
 		//note: loop order matters here.
 		for(int i=0; i<num_xz; i++) {
 			float u=i/(num_xz-1.f);
-			float theta=2*Pi*u;
+			float theta=2*cmn::Pi*u;
 
 			float dx=std::sin(theta);
 			float dz=std::cos(theta);
 
 			for(int j=0; j<num_y; j++) {
 				float v=j/(num_y-1.f);
-				float phi=Pi*v;
+				float phi=cmn::Pi*v;
 
 				float dr=std::sin(phi);
 				float nx=dx*dr;
@@ -317,12 +317,12 @@ struct Mesh {
 		//toppole, topedge, topside, btmside, btmedge, btmpole
 
 		float y_top=hgt/2, y_btm=-y_top;
-		float v_top=std::atan(2*rad/hgt)/Pi, v_btm=1-v_top;
+		float v_top=std::atan(2*rad/hgt)/cmn::Pi, v_btm=1-v_top;
 
 		//note: push_back order matters here.
 		for(int i=0; i<num; i++) {
 			float u=i/(num-1.f);
-			float theta=2*Pi*u;
+			float theta=2*cmn::Pi*u;
 
 			float nx=std::sin(theta);
 			float nz=std::cos(theta);
@@ -387,7 +387,7 @@ struct Mesh {
 		//note: push_back order matters here.
 		for(int i=0; i<num; i++) {
 			float u=i/(num-1.f);
-			float theta=2*Pi*u;
+			float theta=2*cmn::Pi*u;
 
 			float dx=std::sin(theta);
 			float dz=std::cos(theta);

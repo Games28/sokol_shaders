@@ -45,6 +45,9 @@ public:
 
 	virtual void userDestroy() {};
 
+	//custom user event handling.
+	virtual void userInput(const sapp_event* e) {}
+
 	virtual void userUpdate(float dt)=0;
 
 	virtual void userRender()=0;

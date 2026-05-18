@@ -248,9 +248,9 @@ struct Object {
 	bool contains( const vf3d& orig_local)
 	{
 		vf3d dir = vf3d(
-			.5f - randFloat(),
-			.5f - randFloat(),
-			.5f - randFloat()
+			.5f - cmn::randFloat(),
+			.5f - cmn::randFloat(),
+			.5f - cmn::randFloat()
 		).norm();
 
 

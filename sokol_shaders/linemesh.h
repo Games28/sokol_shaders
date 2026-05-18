@@ -81,7 +81,7 @@ struct LineMesh {
 
 	void randomizeColors() {
 		for (auto& v : verts) {
-			v.col = { randFloat(), randFloat(), randFloat(), 1 };
+			v.col = { cmn::randFloat(), cmn::randFloat(), cmn::randFloat(), 1 };
 		}
 	}
 

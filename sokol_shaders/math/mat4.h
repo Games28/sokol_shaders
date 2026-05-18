@@ -202,7 +202,7 @@ struct mat4 {
 	//fov=degrees & asp=width/height
 	//https://gamedev.stackexchange.com/questions/120338
 	static mat4 makePerspective(float fov_deg, float asp, float near, float far) {
-		float fov_rad=fov_deg/180*Pi;
+		float fov_rad=fov_deg/180*cmn::Pi;
 		float inv_tan=1/std::tan(fov_rad/2);
 		float inv_nearfar=1/(near-far);
 		mat4 a;
